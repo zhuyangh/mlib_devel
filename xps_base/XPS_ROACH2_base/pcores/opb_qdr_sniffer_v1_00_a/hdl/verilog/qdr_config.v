@@ -23,6 +23,8 @@ module qdr_config #(
     output [35:0] dly_en_i,
     output [36:0] dly_en_o,
     output        dly_inc_dec,
+    output        dly_extra_clk,
+    output        disable_fabric,
 
     input [5*(37+36)-1:0] dly_cntrs,
 
@@ -37,6 +39,7 @@ module qdr_config #(
 
   localparam REG_RESET          = 0;
   localparam REG_STATUS         = 1;
+  localparam REG_DISABLE_FABRIC = 2;
   localparam REG_DLY_EN_0       = 4;
   localparam REG_DLY_EN_1       = 5;
   localparam REG_DLY_EN_2       = 6;
@@ -48,6 +51,11 @@ module qdr_config #(
   reg [35:0] dly_en_i_reg;
   reg [36:0] dly_en_o_reg;
   reg        dly_inc_dec_reg;
+<<<<<<< HEAD
+=======
+  reg        dly_extra_clk_reg;
+  reg        disable_fabric_reg;
+>>>>>>> 082b13c... Allow software override of QDR simulink write i/f
 
   /* OPB Address Decoding */
   wire [31:0] opb_addr = OPB_ABus - C_BASEADDR;
@@ -75,6 +83,11 @@ module qdr_config #(
             if (!OPB_RNW) begin
               if (OPB_BE[3])
                 qdr_reset_shifter[0] <= OPB_DBus[31];
+            end
+          end
+          REG_DISABLE_FABRIC: begin
+            if (!OPB_RNW) begin
+              disable_fabric_reg <= OPB_DBus[31];
             end
           end
           REG_DLY_EN_0: begin
@@ -144,8 +157,17 @@ module qdr_config #(
   wire [35:0] dly_en_i_clk_crossed;
   wire [36:0] dly_en_o_clk_crossed;
   wire        dly_inc_dec_clk_crossed;
+<<<<<<< HEAD
 
   assign dly_inc_dec = dly_inc_dec_clk_crossed;
+=======
+  wire dly_extra_clk_crossed;
+  wire disable_fabric_crossed;
+
+  assign dly_inc_dec = dly_inc_dec_clk_crossed;
+  assign dly_extra_clk = dly_extra_clk_crossed;
+  assign disable_fabric = disable_fabric_crossed;
+>>>>>>> 082b13c... Allow software override of QDR simulink write i/f
  
   /*** cross the clock domains ***/  
   clk_domain_crosser #(
@@ -157,6 +179,19 @@ module qdr_config #(
     .data_in  ({dly_en_i_reg,         dly_en_o_reg,         dly_inc_dec_reg        }),
     .data_out ({dly_en_i_clk_crossed, dly_en_o_clk_crossed, dly_inc_dec_clk_crossed})
   );
+<<<<<<< HEAD
+=======
+
+  clk_domain_crosser #(
+    .DATA_WIDTH (1)
+  ) clk_domain_crosser_ec [1:0] (
+    .in_clk   (OPB_Clk),
+    .out_clk  (qdr_clk),
+    .rst      (OPB_Rst),
+    .data_in  ({dly_extra_clk_reg, disable_fabric_reg}),
+    .data_out ({dly_extra_clk_crossed, disable_fabric_crossed})
+  );
+>>>>>>> 082b13c... Allow software override of QDR simulink write i/f
   
   /*** edge detect ***/
   edge_detect #(
