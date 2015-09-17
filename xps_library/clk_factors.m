@@ -1,11 +1,11 @@
 % This function uses the input clock frequence and the target freq to calculate
 % the correct multiply and divide factors for the MMCM. Specifically for ROACH2
-% This is implemented by creating a 3D matrix of all possible values and 
+% This is implemented by creating a 3D matrix of all possible values and
 % finding the one that closest matches the requirements.
 
 
 function [bestM, bestD, bestDD] = clk_factors(clk_freq, target_freq)
-     
+
      bestM = 0;
      bestD = 0;
      bestDD = 0;
@@ -40,6 +40,6 @@ function [bestM, bestD, bestDD] = clk_factors(clk_freq, target_freq)
              end
          end
      end
-     
+
      closest_freq = clk_freq * bestM / bestD / bestDD;
      sys_clk_VCO = bestM * clk_freq / bestDD;

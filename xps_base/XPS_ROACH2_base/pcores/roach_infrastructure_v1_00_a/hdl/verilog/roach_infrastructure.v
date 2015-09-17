@@ -1,9 +1,14 @@
 module roach_infrastructure #(
-    parameter CLK_FREQ     = 100, 
-    parameter CLK_HIGH_LOW = "low", // high >= 135, low < 135
-    parameter MULTIPLY     = 6,
-    parameter DIVIDE       = 6,
-    parameter DIVCLK       = 1
+    parameter SYS_CLK_FREQ     = 100,
+    parameter SYS_CLK_HIGH_LOW = "low", // high >= 135, low < 135
+    parameter SYS_MULTIPLY     = 6,
+    parameter SYS_DIVIDE       = 6,
+    parameter SYS_DIVCLK       = 1,
+    parameter AUX_CLK_FREQ     = 100,
+    parameter AUX_CLK_HIGH_LOW = "low", // high >= 135, low < 135
+    parameter AUX_MULTIPLY     = 6,
+    parameter AUX_DIVIDE       = 6,
+    parameter AUX_DIVCLK       = 1
   )  (
     input  sys_clk_n,    sys_clk_p,
     output sys_clk,      sys_clk90,       sys_clk180,   sys_clk270,
@@ -13,7 +18,7 @@ module roach_infrastructure #(
     //dly_clk,
     input  epb_clk_in,
     output epb_clk,
-    input  idelay_rst, 
+    input  idelay_rst,
     output idelay_rdy,
     input  aux_clk_n,  aux_clk_p,
     output aux_clk,    aux_clk90,   aux_clk180,   aux_clk270,
@@ -95,11 +100,11 @@ module roach_infrastructure #(
 
   // sys_clk mmcm
   MMCM_BASE #(
-    .BANDWIDTH          ("low"), // Jitter programming ("HIGH","LOW","OPTIMIZED")
-    .CLKFBOUT_MULT_F    (MULTIPLY), // Multiply value for all CLKOUT (5.0-64.0). THIS IS THE MULTIPLIER
+    .BANDWIDTH          (SYS_CLK_HIGH_LOW), // Jitter programming ("HIGH","LOW","OPTIMIZED")
+    .CLKFBOUT_MULT_F    (SYS_MULTIPLY), // Multiply value for all CLKOUT (5.0-64.0). THIS IS THE MULTIPLIER
     .CLKFBOUT_PHASE     (0.0),
-    .CLKIN1_PERIOD      (1000.0/100),
-    .CLKOUT0_DIVIDE_F   ((1.0*MULTIPLY)/DIVCLK/2.0), // Divide amount for CLKOUT0 (1.000-128.000).
+    .CLKIN1_PERIOD      (1000.0/SYS_CLK_FREQ),
+    .CLKOUT0_DIVIDE_F   ((1.0*SYS_MULTIPLY)/SYS_DIVCLK/2.0), // Divide amount for CLKOUT0 (1.000-128.000).
     .CLKOUT0_DUTY_CYCLE (0.5),
     .CLKOUT1_DUTY_CYCLE (0.5),
     .CLKOUT2_DUTY_CYCLE (0.5),
@@ -114,15 +119,15 @@ module roach_infrastructure #(
     .CLKOUT4_PHASE      (270.0),
     .CLKOUT5_PHASE      (0.0),
     .CLKOUT6_PHASE      (0.0),
-    .CLKOUT1_DIVIDE     (DIVIDE), //THIS IS THE DIVISOR
-    .CLKOUT2_DIVIDE     (DIVIDE),
-    .CLKOUT3_DIVIDE     (DIVIDE),
-    .CLKOUT4_DIVIDE     (DIVIDE),
-    .CLKOUT5_DIVIDE     (DIVIDE/2),//(MULTIPLY/DIVCLK/2)
-    .CLKOUT6_DIVIDE     (MULTIPLY/DIVCLK),
+    .CLKOUT1_DIVIDE     (SYS_DIVIDE), //THIS IS THE DIVISOR
+    .CLKOUT2_DIVIDE     (SYS_DIVIDE),
+    .CLKOUT3_DIVIDE     (SYS_DIVIDE),
+    .CLKOUT4_DIVIDE     (SYS_DIVIDE),
+    .CLKOUT5_DIVIDE     (SYS_DIVIDE/2),//(MULTIPLY/DIVCLK/2)
+    .CLKOUT6_DIVIDE     (SYS_MULTIPLY/SYS_DIVCLK),
     .CLKOUT4_CASCADE    ("FALSE"),
     .CLOCK_HOLD         ("FALSE"),
-    .DIVCLK_DIVIDE      (DIVCLK), // Master division value (1-80)
+    .DIVCLK_DIVIDE      (SYS_DIVCLK), // Master division value (1-80)
     .REF_JITTER1        (0.0),
     .STARTUP_WAIT       ("FALSE")
   ) MMCM_BASE_sys_clk (
@@ -130,7 +135,7 @@ module roach_infrastructure #(
     .CLKFBIN   (sys_clk_fb),
     .CLKFBOUT  (sys_clk_fb_int),
     .CLKFBOUTB (),
-    
+
     .CLKOUT0   (clk_200_mmcm),
     .CLKOUT0B  (),
     .CLKOUT1   (sys_clk_mmcm),
@@ -140,11 +145,11 @@ module roach_infrastructure #(
     .CLKOUT5   (),//(sys_clk2x_mmcm),
     .CLKOUT6   (clk_100),//(ddr3_clk),
     .LOCKED    (sys_clk_mmcm_locked),
-    
+
     .PWRDWN    (1'b0),
     .RST       (mmcm_reset)
   );
-  
+
   BUFG bufg_sys_clk[4:0](
     .I({sys_clk_mmcm, sys_clk90_mmcm, sys_clk_fb_int, sys_clk180_mmcm, sys_clk270_mmcm}),
     .O({sys_clk,      sys_clk90,      sys_clk_fb    , sys_clk180     , sys_clk270})
@@ -181,11 +186,11 @@ module roach_infrastructure #(
   assign sys_clk2x270 = 1'b0;
 
   MMCM_BASE #(
-    .BANDWIDTH          (CLK_HIGH_LOW), // Jitter programming ("HIGH","LOW","OPTIMIZED")
+    .BANDWIDTH          (AUX_CLK_HIGH_LOW), // Jitter programming ("HIGH","LOW","OPTIMIZED")
     .CLKFBOUT_MULT_F    (6), // Multiply value for all CLKOUT (5.0-64.0). THIS IS THE MULTIPLIER
     .CLKFBOUT_PHASE     (0.0),
-    .CLKIN1_PERIOD      (1000.0/CLK_FREQ),
-    .CLKOUT0_DIVIDE_F   (6), // Divide amount for CLKOUT0 (1.000-128.000).
+    .CLKIN1_PERIOD      (1000.0/AUX_CLK_FREQ),
+    .CLKOUT0_DIVIDE_F   ((1.0*AUX_MULTIPLY)/SYS_DIVCLK/2.0), // Divide amount for CLKOUT0 (1.000-128.000).
     .CLKOUT0_DUTY_CYCLE (0.5),
     .CLKOUT1_DUTY_CYCLE (0.5),
     .CLKOUT2_DUTY_CYCLE (0.5),
@@ -200,12 +205,12 @@ module roach_infrastructure #(
     .CLKOUT4_PHASE      (0.0),
     .CLKOUT5_PHASE      (0.0),
     .CLKOUT6_PHASE      (0.0),
-    .CLKOUT1_DIVIDE     (6), //THIS IS THE DIVISOR
-    .CLKOUT2_DIVIDE     (6),
-    .CLKOUT3_DIVIDE     (6),
-    .CLKOUT4_DIVIDE     (6),
-    .CLKOUT5_DIVIDE     (6),
-    .CLKOUT6_DIVIDE     (6),
+    .CLKOUT1_DIVIDE     (AUX_DIVIDE), //THIS IS THE DIVISOR
+    .CLKOUT2_DIVIDE     (AUX_DIVIDE),
+    .CLKOUT3_DIVIDE     (AUX_DIVIDE),
+    .CLKOUT4_DIVIDE     (AUX_DIVIDE),
+    .CLKOUT5_DIVIDE     (AUX_DIVIDE),
+    .CLKOUT6_DIVIDE     (AUX_DIVIDE),
     .CLKOUT4_CASCADE    ("FALSE"),
     .CLOCK_HOLD         ("FALSE"),
     .DIVCLK_DIVIDE      (1), // Master division value (1-80)
@@ -216,7 +221,7 @@ module roach_infrastructure #(
     .CLKFBIN   (aux_clk_fb),
     .CLKFBOUT  (aux_clk_fb_int),
     .CLKFBOUTB (),
-    
+
     .CLKOUT0   (),
     .CLKOUT0B  (),
     .CLKOUT1   (aux_clk_mmcm),
@@ -229,7 +234,7 @@ module roach_infrastructure #(
     .CLKOUT5   (),
     .CLKOUT6   (aux_ddr3_clk),
     .LOCKED    (aux_clk_mmcm_locked),
-    
+
     .PWRDWN    (1'b0),
     .RST       (mmcm_reset)
   );

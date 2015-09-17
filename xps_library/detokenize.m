@@ -5,41 +5,45 @@ xsg_obj = xps_objs{1};
 hw_sys         = get(xsg_obj,'hw_sys');
 sw_os          = get(xsg_obj,'sw_os');
 app_clk        = get(xsg_obj,'clk_src');
-app_clk_rate   = get(xsg_obj,'clk_rate');
-roach_sys_clk_rate = 100;
-mkdig_sys_clk_rate = 156.25;
+app_clk_freq   = get(xsg_obj,'clk_rate');
+sys_clk_freq  = 100;
+aux_clk_freq  = 100;
+mkdig_sys_clk_freq = 156.25;
 multiply       = 1;
 divide         = 1;
 divclk         = 1;
 
 if strcmp(hw_sys, 'ROACH2')
    if strcmp(app_clk, 'sys_clk')
-      [multiply divide divclk] = clk_factors(roach_sys_clk_rate, app_clk_rate);
-      fprintf(strcat('Running off sys_clk @ ', int2str(roach_sys_clk_rate*multiply/divide/divclk), 'MHz','\n'))
+      [sys_multiply sys_divide sys_divclk] = clk_factors(sys_clk_freq, app_clk_freq);
+      [aux_multiply aux_divide aux_divclk] = clk_factors(aux_clk_freq, aux_clk_freq);
+      fprintf(strcat('Running off sys_clk @ ', int2str(sys_clk_freq*sys_multiply/sys_divide/sys_divclk), 'MHz','\n'))
    elseif strcmp(app_clk, 'aux_clk')
-      roach_sys_clk_rate = app_clk_rate;
-      [multiply divide divclk] = clk_factors(app_clk_rate, app_clk_rate);
-      fprintf(strcat('Running off aux_clk @ ', int2str(app_clk_rate), 'MHz', '\n'))
+      aux_clk_freq = app_clk_freq;
+      [sys_multiply sys_divide sys_divclk] = clk_factors(sys_clk_freq, sys_clk_freq);
+      [aux_multiply aux_divide aux_divclk] = clk_factors(aux_clk_freq, aux_clk_freq);
+      fprintf(strcat('Running off aux_clk @ ', int2str(app_clk_freq), 'MHz', '\n'))
    else
-      [multiply divide divclk] = clk_factors(100, 100);
-      fprintf(strcat('Running off adc_clk @ ', int2str(app_clk_rate), 'MHz','\n')) 
+      [sys_multiply sys_divide sys_divclk] = clk_factors(sys_clk_freq, sys_clk_freq);
+      fprintf(strcat('Running off adc_clk @ ', int2str(app_clk_freq), 'MHz','\n'))
    end
-   if roach_sys_clk_rate < 135
-      clk_high_low = 'low';
+   if aux_clk_freq < 135
+      aux_clk_high_low = 'low';
    else
-      clk_high_low = 'high';
+      aux_clk_high_low = 'high';
    end
+   sys_clk_high_low = 'low';
 end
 
 if strcmp(hw_sys, 'MKDIG')
    if strcmp(app_clk, 'sys_clk')
-      [multiply divide divclk] = clk_factors(mkdig_sys_clk_rate, app_clk_rate);
-      fprintf(strcat('Running off sys_clk @ ', int2str(mkdig_sys_clk_rate*multiply/divide/divclk), 'MHz','\n'))
+      [multiply divide divclk] = clk_factors(mkdig_sys_clk_freq, app_clk_freq);
+      fprintf(strcat('Running off sys_clk @ ', int2str(mkdig_sys_clk_freq*multiply/divide/divclk), 'MHz','\n'))
    else
-      [multiply divide divclk] = clk_factors(app_clk_rate, app_clk_rate);
-      fprintf(strcat('Running off adc_clk @ ', int2str(app_clk_rate), 'MHz','\n')) 
+      [multiply divide divclk] = clk_factors(app_clk_freq, app_clk_freq);
+      fprintf(strcat('Running off adc_clk @ ', int2str(app_clk_freq), 'MHz','\n')) 
    end
-   if mkdig_sys_clk_rate < 135
+   if mkdig_sys_clk_freq < 135
       clk_high_low = 'low';
    else
       clk_high_low = 'high';
