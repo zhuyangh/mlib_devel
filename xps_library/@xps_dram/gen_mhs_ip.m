@@ -190,8 +190,8 @@ switch hw_sys
      str = [str, ' PARAMETER HW_VER = 1.00.a',                               '\n'];
      str = [str, ' PARAMETER CTRL_C_BASEADDR = 0x00050000',                  '\n'];
      str = [str, ' PARAMETER CTRL_C_HIGHADDR = 0x0005FFFF',                  '\n'];
-     str = [str, ' PARAMETER MEM_C_BASEADDR  = 0x010B0000',                  '\n'];
-     str = [str, ' PARAMETER MEM_C_HIGHADDR  = 0x010BFFFF',                  '\n'];
+     str = [str, ' PARAMETER MEM_C_BASEADDR  = 0x04000000',                  '\n'];
+     str = [str, ' PARAMETER MEM_C_HIGHADDR  = 0x07FFFFFF',                  '\n'];
      str = [str, ' PARAMETER ENABLE          = 1',                           '\n'];
      str = [str, ' BUS_INTERFACE SOPB_CTRL = opb0',                          '\n'];
      str = [str, ' BUS_INTERFACE SOPB_MEM  = opb0',                          '\n'];
