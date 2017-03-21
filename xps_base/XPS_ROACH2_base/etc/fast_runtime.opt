@@ -20,6 +20,7 @@ Program ngdbuild
 -sd ../pcores;              # Where to find NGC netlists for black box blocks
 <userdesign>;               # User design - pick from xflow command line
 -uc <design>.ucf;           # ucf constraints
+-quiet;						# Only report Warning and Error messages
 <design>.ngd;               # Name of NGD file. Filebase same as design filebase
 End Program ngdbuild
 
@@ -30,10 +31,10 @@ End Program ngdbuild
 #
 Program map
 -timing;
--detail;
+#-detail;
 -ol high;
 -xe n;
--mt 2;
+-mt 4;
 -register_duplication;
 #-global_opt on;            # Try uncommenting if timing is an issue
 -o <design>_map.ncd;        # Output Mapped ncd file
