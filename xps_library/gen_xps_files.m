@@ -67,18 +67,18 @@ if s ~= 0
   if s ~= 0,
     disp(sprint('Could not detect OS, assuming Windows'));
   elseif ~isempty(regexp(w,'Windows', 'ONCE')),
-    fprintf('Detected Windows OS');
+    disp('Detected Windows OS');
   else
-    fprintf('Detected Unknown Windows-like OS');
+    disp('Detected Unknown Windows-like OS');
   end
   system_os = 'windows';
 elseif ~isempty(regexp(w, 'Linux', 'ONCE')),
   slash = '/';
-  fprintf('Detected Linux OS');
+  disp('Detected Linux OS');
   system_os = 'linux';
 else
   slash = '/';
-  fprintf('Detected Unknown Unix-like OS');
+  disp('Detected Unknown Unix-like OS');
   system_os = 'linux';
 end
 
@@ -93,12 +93,12 @@ casper_blks     = find_system(sys, 'FollowLinks', 'on', 'LookUnderMasks', 'all',
 for ctr = 1 : numel(xps_blks),
     if numel(strfind(xps_blks{ctr}, ' ')) > 0,
         error('Block names may not have spaces - %s', xps_blks{ctr});
-    end 
+    end
 end
 for ctr = 1 : numel(casper_blks),
     if numel(strfind(casper_blks{ctr}, ' ')) > 0,
         error('Block names may not have spaces - %s', casper_blks{ctr});
-    end 
+    end
 end
 
 % check if the system name is correct
@@ -611,7 +611,8 @@ if run_software,
     win_fid = fopen([xps_path, slash, 'gen_prog_files.bat'], 'w');
     unix_fid = fopen([xps_path, slash, 'gen_prog_files'], 'w');
     fprintf(unix_fid, '#!/bin/bash\n');
-    files_name = [design_name, '_', clear_name(datestr(now, 'yyyy-mmm-dd HHMM'))];
+%     files_name = [design_name, '_', clear_name(datestr(now, 'yyyy-mmm-dd HHMM'))];
+    files_name = [design_name, '_v', get_param(design_name, 'ModelVersion')];
 
     switch sw_os
         case 'none'
